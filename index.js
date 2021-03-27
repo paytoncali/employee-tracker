@@ -76,7 +76,10 @@ const viewAllEmployees = () => {
 };
 
 const viewAllEmployeesbyDepartment = () => {
-    inquirer 
+    let query = 'SELECT employee.id, employee.first_name, employee.last_name, roles.title'
+                query += 'FROM roles INNER JOIN employee ON employee.role_id = roles.id RIGHT JOIN departments ON departments.id = roles.department_id'
+                query+= 'WHERE department_name = ?'
+        inquirer 
         .prompt({
             name: 'department',
             type: "list",
@@ -84,13 +87,9 @@ const viewAllEmployeesbyDepartment = () => {
             choices: ["Sales", "Engineering", "Finance", "Legal"]
     })
     .then((answer) => {
-        switch(answer.department) {
-            case "Sales":
-                let query = 'SELECT employee.id, employee.first_name, employee.last_name, roles.title,'
-                query += 'FROM roles INNER JOIN employee ON employee.role_id = roles.id RIGHT JOIN department ON departments.id = roles.department_id,'
-                query+= 'WHERE department_name = "Sales",'
-            
-        connection.query(query, (err, res) => {
+        // switch(answer.department) {
+        //     case "Sales": 
+        connection.query(query, {department_name: answer.department}, (err, res) => {
             const peopleArray = []
             res.forEach(( { id, first_name, last_name, title, }, ) => {
               const peopleObject = {
@@ -98,28 +97,27 @@ const viewAllEmployeesbyDepartment = () => {
                 "First Name":  first_name, 
                 "Last Name": last_name,
                 "Title": title,
-                        
               }
               peopleArray.push(peopleObject);
             });
             console.table(peopleArray);
             questions();
         });
-                break;
-            case "Engineering":
+    //             break;
+    //         case "Engineering":
 
-                break;
-            case "Finance":
+    //             break;
+    //         case "Finance":
 
-                break;
-            case "Legal":
+    //             break;
+    //         case "Legal":
 
-                break;
-            default:
-                console.log("try again");
-                break;
-        }
-    })
+    //             break;
+    //         default:
+    //             console.log("try again");
+    //             break;
+    //     }
+    // })
         // let query = 'SELECT employee.id, employee.first_name, employee.last_name, roles.title, roles.salary, employee.manager_id, departments.department_name,'
         // query += 'CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM roles INNER JOIN employee ON employee.role_id = roles.id LEFT JOIN employee manager ON manager.id = employee.manager_id INNER JOIN departments ON roles.department_id = departments.id;'
         
@@ -141,7 +139,7 @@ const viewAllEmployeesbyDepartment = () => {
             // console.table(peopleArray);
             // questions();
         // });
-    
+    });
 };
 
 const viewAllEmployeesbyRole = () => {
