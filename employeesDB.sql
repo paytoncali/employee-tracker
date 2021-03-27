@@ -8,7 +8,9 @@ CREATE TABLE employee (
     last_name VARCHAR(30) NOT NULL,
     role_id INT NOT NULL,
     manager_id INT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    FOREIGN KEY (role_id) REFERENCES role (id),
+    FOREIGN KEY (id) REFERENCES employee (manager_id),
 );
 
 CREATE TABLE roles (
@@ -24,6 +26,7 @@ CREATE TABLE departments (
     id INT NOT NULL AUTO_INCREMENT,
     department_name VARCHAR(30) NOT NULL,
     PRIMARY KEY (id)
+    FOREIGN KEY (department_id) REFERENCES department(id),
 
 );
 
@@ -35,3 +38,5 @@ VALUES ("Sales Lead", 130000, 1), ("Salesperson", 100000, 1), ("Lead Engineer", 
 
 INSERT INTO departments (department_name)
 VALUES ("Sales"), ("Engineering"), ("Finance"), ("Legal");
+
+

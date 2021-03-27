@@ -52,20 +52,19 @@ const questions = () => {
 
 
 const viewAllEmployees = () => {
-    console.log("hi");
-    let query = 'SELECT employee.first_name, employee.last_name, roles.title, roles.salary ';
-    query += "FROM employee INNER JOIN roles ON (employee.role_id = roles.id)";
+    let query = 'SELECT employee.id, employee.first_name, employee.last_name, roles.title, roles.salary, employee.manager_id,'
+    query += 'CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM employee INNER JOIN roles ON employee.role_id = roles.id LEFT JOIN employee manager ON manager.id = employee.manager_id;'
 
     connection.query(query, (err, res) => {
         const peopleArray = []
-        res.forEach(( { first_name, last_name, title, salary }, i) => {
-          const num = i + 1;
+        res.forEach(( { id, first_name, last_name, title, salary, manager}, ) => {
           const peopleObject = {
-            "ID ": num, 
+            "ID ": id, 
             "First Name":  first_name, 
             "Last Name": last_name,
             "Title": title,
             "Salary": salary,
+            "Manager": manager,
           }
           peopleArray.push(peopleObject);
         });
