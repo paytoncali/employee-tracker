@@ -39,7 +39,7 @@ const questions = () => {
             case "Add Job Title":
                 addJobTitle();
                 break;
-            case "Update Employe Title":
+            case "Update Employee Title":
                 updateEmployeeTitle();
                 break;
             case "Exit":
@@ -244,20 +244,49 @@ const addJobTitle = () => {
 })};
 
 const updateEmployeeTitle = () => {
-    console.log("hi");
-    let query = 'SELECT employee.first_name, employee.last_name, roles.title, roles.salary ';
-    query += "FROM employee INNER JOIN roles ON (employee.role_id = roles.id)";
+    connection.query('SELECT CONCAT(first_name, " ", last_name) AS employee_name FROM employee ', (err, res) => {
+        inquirer
+        .prompt([
+            {
+            name: 'name',
+            type: "list",
+            message: "What is the employee's name that needs the job title change?",
+            choices() {
+                const employeeArray = [];
+                res.forEach(({ employee_name }) => {
+                    employeeArray.push(employee_name);
+                })
+                return employeeArray;
+            },
+        },
+        {
+            name: 'role',
+            type: "list",
+            message: "What is their new Job Title?",
+                choices() {
+                    const roleArray = [];
+                    forEach(({ role_id }) => {
+                        roleArray.push( role_id );
+                    })
+                return roleArray;
+            },
+        }
+        ])
+        .then((answer) => {
+            connection.query(
+            'UPDATE employee SET ? WHERE ?',
+            {
+                employee_name: answer.name,
+                role_id: answer.role
+            },
+            (err) => {
+                if (err) throw err;
+                console.log("Your Job Title has been added!");
+                questions();
+            }
+        )});    
+})};
 
-    connection.query(query, (err, res) => {
-        res.forEach(( { first_name, last_name, title, salary }, i) => {
-          const num = i + 1;
-          console.table(
-            `ID: ${num} First Name: ${first_name} Last Name: ${last_name} || Title: ${title} Salary: ${salary}`
-          );
-        });
-        questions();
-    });
-};
 
 connection.connect((err) => {
     if (err) throw err;
