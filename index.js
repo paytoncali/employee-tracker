@@ -76,9 +76,9 @@ const viewAllEmployees = () => {
 };
 
 const viewAllEmployeesbyDepartment = () => {
-    let query = 'SELECT employee.id, employee.first_name, employee.last_name, roles.title'
-                query += 'FROM roles INNER JOIN employee ON employee.role_id = roles.id RIGHT JOIN departments ON departments.id = roles.department_id'
-                query+= 'WHERE department_name = ?'
+    let query = 'SELECT employee.id, employee.first_name, employee.last_name, roles.title '
+                query += 'FROM roles INNER JOIN employee ON employee.role_id = roles.id RIGHT JOIN departments ON departments.id = roles.department_id '
+                query += 'WHERE ?'
         inquirer 
         .prompt({
             name: 'department',
@@ -87,9 +87,8 @@ const viewAllEmployeesbyDepartment = () => {
             choices: ["Sales", "Engineering", "Finance", "Legal"]
     })
     .then((answer) => {
-        // switch(answer.department) {
-        //     case "Sales": 
         connection.query(query, {department_name: answer.department}, (err, res) => {
+            console.log(query);
             const peopleArray = []
             res.forEach(( { id, first_name, last_name, title, }, ) => {
               const peopleObject = {
@@ -103,58 +102,36 @@ const viewAllEmployeesbyDepartment = () => {
             console.table(peopleArray);
             questions();
         });
-    //             break;
-    //         case "Engineering":
-
-    //             break;
-    //         case "Finance":
-
-    //             break;
-    //         case "Legal":
-
-    //             break;
-    //         default:
-    //             console.log("try again");
-    //             break;
-    //     }
-    // })
-        // let query = 'SELECT employee.id, employee.first_name, employee.last_name, roles.title, roles.salary, employee.manager_id, departments.department_name,'
-        // query += 'CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM roles INNER JOIN employee ON employee.role_id = roles.id LEFT JOIN employee manager ON manager.id = employee.manager_id INNER JOIN departments ON roles.department_id = departments.id;'
-        
-        // connection.query(query, (err, res) => {
-        //     const peopleArray = []
-        //     res.forEach(( { id, first_name, last_name, title, salary, manager, department_name, }, ) => {
-        //       const peopleObject = {
-        //         "ID ": id, 
-        //         "First Name":  first_name, 
-        //         "Last Name": last_name,
-        //         "Title": title,
-        //         "Salary": salary,
-        //         "Manager": manager,
-        //         "Department": department_name,
-                
-        //       }
-        //       peopleArray.push(peopleObject);
-        //     });
-            // console.table(peopleArray);
-            // questions();
-        // });
     });
 };
 
 const viewAllEmployeesbyRole = () => {
-    console.log("hi");
-    let query = 'SELECT employee.first_name, employee.last_name, roles.title, roles.salary ';
-    query += "FROM employee INNER JOIN roles ON (employee.role_id = roles.id)";
-
-    connection.query(query, (err, res) => {
-        res.forEach(( { first_name, last_name, title, salary }, i) => {
-          const num = i + 1;
-          console.table(
-            `ID: ${num} First Name: ${first_name} Last Name: ${last_name} || Title: ${title} Salary: ${salary}`
-          );
+    let query = 'SELECT employee.id, employee.first_name, employee.last_name, roles.salary '
+                query += 'FROM roles INNER JOIN employee ON employee.role_id = roles.id RIGHT JOIN departments ON departments.id = roles.department_id '
+                query += 'WHERE ?'
+        inquirer 
+        .prompt({
+            name: 'role',
+            type: "list",
+            message: "Which Role?",
+            choices: ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Accountant", "Legal Team Lead", "Lawyer"]
+    })
+    .then((answer) => {
+        connection.query(query, {title: answer.role}, (err, res) => {
+            console.log(query);
+            const peopleArray = []
+            res.forEach(( { id, first_name, last_name, salary, }, ) => {
+              const peopleObject = {
+                "ID ": id, 
+                "First Name":  first_name, 
+                "Last Name": last_name,
+                "Salary": salary,
+              }
+              peopleArray.push(peopleObject);
+            });
+            console.table(peopleArray);
+            questions();
         });
-        questions();
     });
 };
 
