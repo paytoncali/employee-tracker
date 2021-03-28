@@ -16,11 +16,10 @@ const questions = () => {
         type: 'list',
         message: "What would you like to do?",
         name: 'action',
-        choices: ["View All Employees", "View All Employees by Department", "View All Employees by Role", "Add Department", "Add Employee", "Add Job Title", "Update Employee Title",]
+        choices: ["View All Employees", "View All Employees by Department", "View All Employees by Role", "Add Department", "Add Employee", "Add Job Title", "Update Employee Title", "Exit",]
         }
     ])
     .then((answer) => {
-        console.log("success");
         switch(answer.action) {
             case "View All Employees":
                 viewAllEmployees();
@@ -42,6 +41,9 @@ const questions = () => {
                 break;
             case "Update Employe Title":
                 updateEmployeeTitle();
+                break;
+            case "Exit":
+                connection.end();
                 break;
             default:
                 console.log("try again");
@@ -88,7 +90,6 @@ const viewAllEmployeesbyDepartment = () => {
     })
     .then((answer) => {
         connection.query(query, {department_name: answer.department}, (err, res) => {
-            console.log(query);
             const peopleArray = []
             res.forEach(( { id, first_name, last_name, title, }, ) => {
               const peopleObject = {
@@ -118,7 +119,6 @@ const viewAllEmployeesbyRole = () => {
     })
     .then((answer) => {
         connection.query(query, {title: answer.role}, (err, res) => {
-            console.log(query);
             const peopleArray = []
             res.forEach(( { id, first_name, last_name, salary, }, ) => {
               const peopleObject = {
@@ -136,53 +136,112 @@ const viewAllEmployeesbyRole = () => {
 };
 
 const addDepartment = () => {
-    console.log("hi");
-    let query = 'SELECT employee.first_name, employee.last_name, roles.title, roles.salary ';
-    query += "FROM employee INNER JOIN roles ON (employee.role_id = roles.id)";
-
-    connection.query(query, (err, res) => {
-        res.forEach(( { first_name, last_name, title, salary }, i) => {
-          const num = i + 1;
-          console.table(
-            `ID: ${num} First Name: ${first_name} Last Name: ${last_name} || Title: ${title} Salary: ${salary}`
-          );
+    inquirer
+    .prompt({
+        name: 'department',
+        type: "input",
+        message: "What department would you like to add?",
+    })
+    .then((answer) => {
+        connection.query(
+        'INSERT INTO departments SET ?',
+        {
+            department_name: answer.department
+        },
+        (err) => {
+            if (err) throw err;
+            console.log("Your Department has been added!");
+            questions();
         });
-        questions();
     });
 };
 
 
 const addEmployee = () => {
-    console.log("hi");
-    let query = 'SELECT employee.first_name, employee.last_name, roles.title, roles.salary ';
-    query += "FROM employee INNER JOIN roles ON (employee.role_id = roles.id)";
-
-    connection.query(query, (err, res) => {
-        res.forEach(( { first_name, last_name, title, salary }, i) => {
-          const num = i + 1;
-          console.table(
-            `ID: ${num} First Name: ${first_name} Last Name: ${last_name} || Title: ${title} Salary: ${salary}`
-          );
-        });
-        questions();
-    });
-};
+    connection.query('SELECT * FROM roles', (err, res) => {
+        inquirer
+        .prompt([
+            {
+            name: 'firstName',
+            type: "input",
+            message: "What is the Employee's First Name?",
+        },
+        {
+            name: 'lastName',
+            type: "input",
+            message: "What is the Employee's Last Name?",
+        },
+        {
+            name: "roleid",
+            type: "list",
+            message: "Please choose a role for the Employee from the following:",
+            choices() {
+                const roleArray = [];
+                for (let i=0; i<res.length; i++){
+                    roleArray.push(`${i+1} ${res[i].title}`);
+                } 
+                return roleArray;
+            },
+        }
+        ])
+        .then((answer) => {
+            connection.query(
+            'INSERT INTO employee SET ?',
+            {
+                first_name: answer.firstName,
+                last_name: answer.lastName,
+                role_id: answer.roleid.split('')[0]
+            },
+            (err) => {
+                if (err) throw err;
+                console.log("Your Employee has been added!");
+                questions();
+            });
+    });  
+})};
 
 const addJobTitle = () => {
-    console.log("hi");
-    let query = 'SELECT employee.first_name, employee.last_name, roles.title, roles.salary ';
-    query += "FROM employee INNER JOIN roles ON (employee.role_id = roles.id)";
-
-    connection.query(query, (err, res) => {
-        res.forEach(( { first_name, last_name, title, salary }, i) => {
-          const num = i + 1;
-          console.table(
-            `ID: ${num} First Name: ${first_name} Last Name: ${last_name} || Title: ${title} Salary: ${salary}`
-          );
+    connection.query('SELECT * FROM departments', (err, res) => {
+    inquirer
+    .prompt([
+        {
+        name: 'role',
+        type: "input",
+        message: "What Job Title would you like to add?",
+    },
+    {
+        name: 'salary',
+        type: "input",
+        message: "What is the Salary for this Job Title?",
+    },
+    {
+        name: "jobid",
+        type: "list",
+        message: "Please choose a department from the following:",
+        choices() {
+            const departmentArray = [];
+            for (let i=0; i<res.length; i++){
+                departmentArray.push(`${i+1} ${res[i].department_name}`);
+            } 
+            return departmentArray;
+        },
+    }
+    ])
+    .then((answer) => {
+        connection.query(
+        'INSERT INTO roles SET ?',
+        {
+            title: answer.role,
+            salary: answer.salary,
+            department_id: answer.jobid.split('')[0]
+        },
+        (err) => {
+            if (err) throw err;
+            console.log("Your Job Title has been added!");
+            questions();
         });
-        questions();
-    });
-};
+    });  
+})};
 
 const updateEmployeeTitle = () => {
     console.log("hi");

@@ -9,8 +9,6 @@ CREATE TABLE employee (
     role_id INT NOT NULL,
     manager_id INT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (role_id) REFERENCES role (id),
-    FOREIGN KEY (id) REFERENCES employee (manager_id),
 );
 
 CREATE TABLE roles (
@@ -26,7 +24,6 @@ CREATE TABLE departments (
     id INT NOT NULL AUTO_INCREMENT,
     department_name VARCHAR(30) NOT NULL,
     PRIMARY KEY (id)
-    FOREIGN KEY (department_id) REFERENCES department(id),
 
 );
 
