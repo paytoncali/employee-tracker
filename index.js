@@ -259,33 +259,45 @@ const updateEmployeeTitle = () => {
                 return employeeArray;
             },
         },
-        {
-            name: 'role',
-            type: "list",
-            message: "What is their new Job Title?",
-                choices() {
-                    const roleArray = [];
-                    forEach(({ role_id }) => {
-                        roleArray.push( role_id );
-                    })
-                return roleArray;
-            },
-        }
+    ])
+    .then((answer) => {
+        connection.query('SELECT title FROM roles', (err, res) => {
+            inquirer
+            .prompt([
+            {
+                name: 'role',
+                type: "list",
+                message: "What is their new Job Title?",
+                    choices() {
+                        const roleArray = [];
+                        res.forEach(({ title }) => {
+                            roleArray.push( title );
+                        })
+                    return roleArray;
+                },
+            }
         ])
-        .then((answer) => {
-            connection.query(
-            'UPDATE employee SET ? WHERE ?',
+    .then((answer) => {
+        let query1 = 'SELECT CONCAT(first_name, " ", last_name AS employee_name FROM employee WHERE ?';
+        connection.query(query1, [answer.name], (err, res) => {
+        connection.query('UPDATE employee SET role_id = (SELECT id FROM roles WHERE ?) WHERE ?',
+            [{
+                title: answer.role
+            },
             {
                 employee_name: answer.name,
-                role_id: answer.role
-            },
-            (err) => {
-                if (err) throw err;
+            }]
+           
+            
+        )});
+        if (err) throw err;
                 console.log("Your Job Title has been added!");
                 questions();
-            }
-        )});    
-})};
+            }    
+    )
+    })})
+})
+}
 
 
 connection.connect((err) => {
