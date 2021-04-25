@@ -33,6 +33,7 @@ Email Address: paytoncaliw@gmail.com
 
 ### Deployment
 https://github.com/paytoncali/employee-tracker.git
+https://drive.google.com/file/d/1L4EI4J6dxcP3hjv8Tw_3jWYikVR6cb7J/view
 
 ### License
 This application is covered by MIT
