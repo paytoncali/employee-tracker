@@ -244,60 +244,63 @@ const addJobTitle = () => {
 })};
 
 const updateEmployeeTitle = () => {
-    connection.query('SELECT CONCAT(first_name, " ", last_name) AS employee_name FROM employee ', (err, res) => {
-        inquirer
-        .prompt([
+    connection.query('SELECT employee.id, CONCAT(first_name, " ", last_name) AS employee_name FROM employee ', (err, eRes) => {
+        inquirer.prompt([
             {
-            name: 'name',
-            type: "list",
-            message: "What is the employee's name that needs the job title change?",
-            choices() {
-                const employeeArray = [];
-                res.forEach(({ employee_name }) => {
-                    employeeArray.push(employee_name);
-                })
-                return employeeArray;
-            },
-        },
-    ])
-    .then((answer) => {
-        connection.query('SELECT title FROM roles', (err, res) => {
-            inquirer
-            .prompt([
-            {
-                name: 'role',
+                name: 'name',
                 type: "list",
-                message: "What is their new Job Title?",
+                message: "What is the employee's name that needs the job title change?",
+                choices() {
+                    const employeeArray = [];
+                    for(let i=0; i<eRes.length; i++) {
+                        employeeArray.push(eRes[i].employee_name);
+                    }
+                return employeeArray;
+            }},
+        ])
+        .then(function(answer){
+                let employeeID;
+                for(let i=0; i<eRes.length; i++){
+                    if(eRes[i].employee_name === answer.name){
+                        employeeID = eRes[i].id
+                        console.log(employeeID)
+                    }
+                }
+            connection.query("SELECT * FROM roles ORDER BY title", (err, res) => {
+                inquirer.prompt([ 
+                    {
+                    name: 'role',
+                    type: "list",
+                    message: "What is their new Job Title?",
                     choices() {
                         const roleArray = [];
-                        res.forEach(({ title }) => {
-                            roleArray.push( title );
-                        })
+                        for(let i=0; i < res.length; i++){
+                            roleArray.push(res[i].title);
+                        }
                     return roleArray;
-                },
-            }
-        ])
-    .then((answer) => {
-        let query1 = 'SELECT CONCAT(first_name, " ", last_name AS employee_name FROM employee WHERE ?';
-        connection.query(query1, [answer.name], (err, res) => {
-        connection.query('UPDATE employee SET role_id = (SELECT id FROM roles WHERE ?) WHERE ?',
-            [{
-                title: answer.role
-            },
-            {
-                employee_name: answer.name,
-            }]
-           
-            
-        )});
-        if (err) throw err;
-                console.log("Your Job Title has been added!");
-                questions();
-            }    
-    )
-    })})
-})
+                    }
+                    }
+                ]).then(function(answer){
+                    let roleID;
+                    for (let i=0; i < res.length; i++){
+                        if(res[i].title===answer.role){
+                            roleID=res[i].id
+                            console.log(roleID)
+                        }
+                    }
+                    connection.query('UPDATE employee SET role_id=? WHERE id=?', 
+                    [roleID, employeeID], 
+                    function(err){
+                    if (err) throw err;
+                    console.log("Employee role has been updated")
+                    questions();
+                })
+                })
+            })
+        })
+    })
 }
+
 
 
 connection.connect((err) => {
