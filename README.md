@@ -18,7 +18,7 @@
 This application gives the user an easy system to tracker employees by role, department, and viewing all Employees. You can also add a new department, role, and employee. 
   
 ### Installation
-first export=PASSWORD into your terminal then run node index.js
+first export PASSWORD = (yourpassword) into your terminal then run node index.js
   
 ### Usage
 This application is used to to track employees
